@@ -1,18 +1,19 @@
 public class ChoricitoAgent {
 
     private final Memory memory;
-    private final LLMClient llm;
+    private final OpenAILLMClient llm;
 
     public ChoricitoAgent() {
         this.memory = new Memory();
-        this.llm = new LLMClient();
+        this.llm = new OpenAILLMClient();
     }
 
     public String think() {
         String prompt = """
-        Ask a playful, friendly question to start a conversation.
-        Avoid repetition.
+        Ask ONE playful, friendly question.
         Keep it short.
+        Avoid insults.
+        Prefer curiosity over statements.
         """;
 
         String output = llm.generate(Personality.SYSTEM_PROMPT, prompt);
