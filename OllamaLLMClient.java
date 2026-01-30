@@ -3,36 +3,27 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class OpenAILLMClient {
+public class OllamaLLMClient {
 
-    private static final String API_URL = "http://localhost:11434/v1/chat/completions";
-    private final String apiKey;
+    private static final String API_URL = "http://localhost:11434/api/generate";
     private final HttpClient client;
 
-    public OpenAILLMClient() {
-        this.apiKey = System.getenv("OPENAI_API_KEY");
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new RuntimeException("OPENAI_API_KEY no encontrada");
-        }
+    public OllamaLLMClient() {
         this.client = HttpClient.newHttpClient();
     }
 
     public String generate(String systemPrompt, String userPrompt) {
         try {
+            String prompt = systemPrompt + "\n\nUsuario: " + userPrompt + "\nChoricito:";
+
             String body = """
             {
-              "model": "gpt-4.1-mini",
+              "model": "phi3:mini",
               "temperature": 0.8,
-              "max_tokens": 80,
-              "messages": [
-                {"role": "system", "content": "%s"},
-                {"role": "user", "content": "%s"}
-              ]
+              "stream": false,
+              "prompt": "%s"
             }
-            """.formatted(
-                    escape(systemPrompt),
-                    escape(userPrompt)
-            );
+            """.formatted(escape(prompt));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(API_URL))
@@ -43,7 +34,7 @@ public class OpenAILLMClient {
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            return extractContent(response.body());
+            return extractResponse(response.body());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,9 +44,8 @@ public class OpenAILLMClient {
 
     // --- helpers ---
 
-    private String extractContent(String json) {
-        // parsing ultra simple (suficiente para prototipo)
-        int start = json.indexOf("\"content\":\"") + 11;
+    private String extractResponse(String json) {
+        int start = json.indexOf("\"response\":\"") + 12;
         int end = json.indexOf("\"", start);
         return json.substring(start, end)
                 .replace("\\n", "\n")
@@ -63,6 +53,11 @@ public class OpenAILLMClient {
     }
 
     private String escape(String s) {
-        return s.replace("\"", "\\\"");
+        return s
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "");
     }
+
 }

@@ -1,11 +1,11 @@
 public class ChoricitoAgent {
 
     private final Memory memory;
-    private final OpenAILLMClient llm;
+    private final OllamaLLMClient llm;
 
     public ChoricitoAgent() {
         this.memory = new Memory();
-        this.llm = new OpenAILLMClient();
+        this.llm = new OllamaLLMClient();
     }
 
     public String think() {
