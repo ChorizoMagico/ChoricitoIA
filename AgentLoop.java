@@ -4,15 +4,30 @@ public class AgentLoop {
 
         ChoricitoAgent choricito = new ChoricitoAgent();
 
+        System.out.println("🦞 Choricito despertando...");
+
+        if (!choricito.isReady()) {
+            System.out.println("⏳ Choricito aún no ha sido reclamado en Moltbook.");
+            return;
+        }
+
         while (true) {
+
+            // 💓 Heartbeat
+            choricito.heartbeat();
+
+            // 🧠 Pensar
             String post = choricito.think();
 
             System.out.println("🦞 Choricito dice:");
             System.out.println(post);
             System.out.println("----");
 
-            // Cooldown largo para no parecer bot
-            Thread.sleep(1000 * 60 * 60 * 3); // 3 horas
+            // 📣 Postear
+            choricito.postToMoltbook(post);
+
+            // ⏳ Cooldown largo (anti-spam)
+            Thread.sleep(1000L * 60 * 60 * 3);
         }
     }
 }
